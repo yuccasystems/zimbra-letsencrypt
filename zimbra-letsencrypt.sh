@@ -3,12 +3,15 @@
 #
 # Yucca Systems Inc
 # Author: Andy Pitcher <apitcher@yuccasystems.com>
-# Description: This script is intented to deploy automatically a new letsencrypt certificate for Zimbra
+# Description: 
+# *** This script is intented to deploy automatically a new letsencrypt certificate
+# *** Implementation of the Zimbra doc https://wiki.zimbra.com/wiki/Installing_a_LetsEncrypt_SSL_Certificate
 
+#Set the domain & Ticket number
+DOMAIN="mx.example.com"
+TICKET=0000
 
-DOMAIN="mx03.computer-services.eu"
-TICKET=456787
-
+# Function to prepare the copy of the new letsencrypt files
 PrepareCert () {
 
 echo "Creating /opt/zimbra/ssl/letsencrypt"
@@ -69,6 +72,7 @@ fi
 
 }
 
+# Deploy the new files to Zimbra and restart the service
 
 DeployCertificate() {
 
