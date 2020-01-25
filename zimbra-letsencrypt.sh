@@ -1,8 +1,6 @@
 #
 # !/bin/bash
-#
 # Yucca Systems Inc
-# Author: Andy Pitcher <apitcher@yuccasystems.com>
 # Description: 
 # *** This script is intented to deploy automatically a new letsencrypt certificate for Zimbra
 # *** Implementation of the Zimbra doc https://wiki.zimbra.com/wiki/Installing_a_LetsEncrypt_SSL_Certificate
