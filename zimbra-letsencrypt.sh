@@ -4,12 +4,13 @@
 # Yucca Systems Inc
 # Author: Andy Pitcher <apitcher@yuccasystems.com>
 # Description: 
-# *** This script is intented to deploy automatically a new letsencrypt certificate
+# *** This script is intented to deploy automatically a new letsencrypt certificate for Zimbra
 # *** Implementation of the Zimbra doc https://wiki.zimbra.com/wiki/Installing_a_LetsEncrypt_SSL_Certificate
 
 #Set the domain & Ticket number
 DOMAIN="mx.example.com"
 TICKET=0000
+ZIMBRA_USER="zimbra"
 
 # Function to prepare the copy of the new letsencrypt files
 PrepareCert () {
@@ -51,12 +52,12 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 """ | tee -a /opt/zimbra/ssl/letsencrypt/chain.pem
 
 echo "Assigning the zimbra permissions to /opt/zimbra/ssl/letsencrypt/*"
-chown -R zimbra:zimbra /opt/zimbra/ssl/letsencrypt/*
+chown -R $ZIMBRA_USER:$ZIMBRA_USER /opt/zimbra/ssl/letsencrypt/*
 
 sleep 2
 
 echo "Validating letsencrypt files within zimbra..."
-runuser -l zimbra -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr verifycrt comm privkey.pem cert.pem chain.pem"
+runuser -l $ZIMBRA_USER -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr verifycrt comm privkey.pem cert.pem chain.pem"
 
 sleep 2
 
@@ -85,7 +86,7 @@ cp -v /opt/zimbra/ssl/letsencrypt/privkey.pem /opt/zimbra/ssl/zimbra/commercial/
 sleep 2
 
 echo "Deploying the new certificate...!"
-runuser -l zimbra -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr deploycrt comm cert.pem chain.pem"
+runuser -l $ZIMBRA_USER -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr deploycrt comm cert.pem chain.pem"
 
 sleep 2
 
@@ -93,7 +94,7 @@ if [[ $? -eq 0 ]]
 then
 	echo "[OK] The new certificate has been successfuly deployed !"
 	echo "Restarting Zimbra services..."
-	runuser -l zimbra -c "zmcontrol restart"
+	runuser -l $ZIMBRA_USER -c "zmcontrol restart"
 
 else
 	echo "[ERROR] Try again, see above error"
