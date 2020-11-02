@@ -10,7 +10,7 @@ DOMAIN="mx.example.com"
 TICKET=0000
 ZIMBRA_USER="zimbra"
 
-# Function to prepare the copy of the new letsencrypt files
+#Compilation of the new letsencrypt certificate with the intermediate cert.
 PrepareCert () {
 
 echo "Creating /opt/zimbra/ssl/letsencrypt"
@@ -50,12 +50,12 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 """ | tee -a /opt/zimbra/ssl/letsencrypt/chain.pem
 
 echo "Assigning the zimbra permissions to /opt/zimbra/ssl/letsencrypt/*"
-chown -R $ZIMBRA_USER:$ZIMBRA_USER /opt/zimbra/ssl/letsencrypt/*
+chown -R zimbra:zimbra /opt/zimbra/ssl/letsencrypt/*
 
 sleep 2
 
 echo "Validating letsencrypt files within zimbra..."
-runuser -l $ZIMBRA_USER -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr verifycrt comm privkey.pem cert.pem chain.pem"
+runuser -l zimbra -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr verifycrt comm privkey.pem cert.pem chain.pem"
 
 sleep 2
 
@@ -71,8 +71,8 @@ fi
 
 }
 
-# Deploy the new files to Zimbra and restart the service
 
+#Use the gathered certificate and add it to the ssl store of zimbra
 DeployCertificate() {
 
 echo "Creating a backup of the old /opt/zimbra/ssl/zimbra to /opt/zimbra/ssl/zimbra.$(date "+%Y%m%d")_$TICKET"
@@ -84,7 +84,7 @@ cp -v /opt/zimbra/ssl/letsencrypt/privkey.pem /opt/zimbra/ssl/zimbra/commercial/
 sleep 2
 
 echo "Deploying the new certificate...!"
-runuser -l $ZIMBRA_USER -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr deploycrt comm cert.pem chain.pem"
+runuser -l zimbra -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr deploycrt comm cert.pem chain.pem"
 
 sleep 2
 
@@ -92,12 +92,21 @@ if [[ $? -eq 0 ]]
 then
 	echo "[OK] The new certificate has been successfuly deployed !"
 	echo "Restarting Zimbra services..."
-	runuser -l $ZIMBRA_USER -c "zmcontrol restart"
+	runuser -l zimbra -c "zmcontrol restart"
+	SendNotification #Send Notification to the emails.txt list
 
 else
 	echo "[ERROR] Try again, see above error"
 	exit 0
 fi
+
+}
+
+#Send results to emails.txt (add email addresses line by line, sed will do the rest)
+SendNotification() {
+
+echo "Sending results to the distribution list."
+echo -e "Congrats!\nCertificate of $(hostname) was updated $(date) \n$(certbot certificates)\n $(runuser -l zimbra -c 'zmcontrol status')" | mail -s "$(hostname) was updated" $( sed ':a;N;$!ba;s/\n/ /g' emails.txt)
 
 }
 
