@@ -2,9 +2,9 @@
 Create, Prepare and Deploy a new Letsencrypt certificate for a Zimbra domain
 Cf. https://wiki.zimbra.com/wiki/Installing_a_LetsEncrypt_SSL_Certificate
 
-## Procedure
+## How To
 ### (One time action) Create zimbra's certificate with certbot (need 80 port opened, stop zimbra)
-``` certbot certonly --standalone --preferred-challenges http -d example.com ```
+``` certbot certonly --standalone --preferred-challenges http -d example.com ``` [certbot help](https://certbot.eff.org/docs/using.html)
 
 ### Run the script zimbra-letsencrypt.sh
 1. Get the certificate (git clone) and add your emails to the emails.txt file (notification)
