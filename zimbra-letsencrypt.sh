@@ -127,7 +127,6 @@ sleep 2
 echo "Deploying the new certificate...!"
 runuser -l zimbra -c "cd /opt/zimbra/ssl/letsencrypt/ && /opt/zimbra/bin/zmcertmgr deploycrt comm cert.pem chain.pem"
 
-sleep 2
 
 if [[ $? -eq 0 ]]
 then
